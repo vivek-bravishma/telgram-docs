@@ -1,3 +1,8 @@
+import { CallbackGame, Game } from "./Games";
+import { Invoice, RefundedPayment, SuccessfulPayment } from "./Payments";
+import { Sticker } from "./Stickers";
+import { PassportData } from "./TelegramPassport";
+
 // This object represents a Telegram user or bot.
 export interface User {
     id: number;

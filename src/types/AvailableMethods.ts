@@ -1,6 +1,6 @@
 // ===== all available methods along with is parameter, parameter type, required or not and description. =====
 
-import { ChatPermissions, ForceReply, InlineKeyboardMarkup, InputFile, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputPaidMedia, InputPollOption, LinkPreviewOptions, MessageEntity, ReactionType, ReplyKeyboardMarkup, ReplyKeyboardRemove, ReplyParameters } from "./AvailableTypes";
+import { BotCommand, BotCommandScope, ChatAdministratorRights, ChatPermissions, ForceReply, InlineKeyboardMarkup, InputFile, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputPaidMedia, InputPollOption, LinkPreviewOptions, MenuButton, MessageEntity, ReactionType, ReplyKeyboardMarkup, ReplyKeyboardRemove, ReplyParameters } from "./AvailableTypes";
 
 // All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods. Use either URL query string or application/json or application/x-www-form-urlencoded or multipart/form-data for passing parameters in Bot API requests.
 // On successful call, a JSON-object containing the result will be returned.
@@ -650,6 +650,241 @@ export interface getChat {
 }
 
 
+
+// Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects.
+export interface getChatAdministrators {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup or channel(in the format @channelusername)
+}
+
+
+// Use this method to get the number of members in a chat. Returns Int on success.
+export interface getChatMemberCount {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup or channel(in the format @channelusername)
+}
+
+
+// Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success.
+export interface getChatMember {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup or channel(in the format @channelusername)
+    user_id: number	//	Unique identifier of the target user
+}
+
+
+// Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success.
+export interface setChatStickerSet {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+    sticker_set_name: string	//	Name of the sticker set to be set as the group sticker set
+}
+
+
+// Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success.
+export interface deleteChatStickerSet {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+}
+
+
+// Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects.
+export interface getForumTopicIconStickers {
+}
+
+
+// Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns information about the created topic as a ForumTopic object.
+export interface createForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+    name: string	//	Topic name, 1 - 128 characters
+    icon_color?: number	//	Color of the topic icon in RGB format.Currently, must be one of 7322096(0x6FB9F0), 16766590(0xFFD67E), 13338331(0xCB86DB), 9367192(0x8EEE98), 16749490(0xFF93B2), or 16478047(0xFB6F5F)
+    icon_custom_emoji_id?: string	//	Unique identifier of the custom emoji shown as the topic icon.Use getForumTopicIconStickers to get all allowed custom emoji identifiers.
+}
+
+
+// Use this method to edit name and icon of a topic in a forum supergroup chat.The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic.Returns True on success.
+export interface editForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+    message_thread_id: number	//	Unique identifier for the target message thread of the forum topic
+    name?: string	//	New topic name, 0 - 128 characters.If not specified or empty, the current name of the topic will be kept
+    icon_custom_emoji_id?: string	//	New unique identifier of the custom emoji shown as the topic icon.Use getForumTopicIconStickers to get all allowed custom emoji identifiers.Pass an empty string to remove the icon.If not specified, the current icon will be kept
+}
+
+
+// Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success.
+export interface closeForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+    message_thread_id: number	//	Unique identifier for the target message thread of the forum topic
+}
+
+
+// Use this method to reopen a closed topic in a forum supergroup chat.The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic.Returns True on success.
+export interface reopenForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+    message_thread_id: number	//	Unique identifier for the target message thread of the forum topic
+}
+
+
+// Use this method to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success.
+export interface deleteForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+    message_thread_id: number	//	Unique identifier for the target message thread of the forum topic
+}
+
+
+// Use this method to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success.
+export interface unpinAllForumTopicMessages {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+    message_thread_id: number	//	Unique identifier for the target message thread of the forum topic
+}
+
+
+// Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
+export interface editGeneralForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+    name: string	//	New topic name, 1 - 128 characters
+}
+
+
+// Use this method to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
+export interface closeGeneralForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+}
+
+
+// Use this method to reopen a closed 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically unhidden if it was hidden. Returns True on success.
+export interface reopenGeneralForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+}
+
+
+// Use this method to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically closed if it was open. Returns True on success.
+export interface hideGeneralForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+}
+
+
+// Use this method to unhide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
+export interface unhideGeneralForumTopic {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+}
+
+
+// Use this method to clear the list of pinned messages in a General forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success.
+export interface unpinAllGeneralForumTopicMessages {
+    chat_id: number | string	//	Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername)
+}
+
+
+// Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
+// Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
+export interface answerCallbackQuery {
+    callback_query_id: string	//	Unique identifier for the query to be answered
+    text?: string	//	Text of the notification.If not specified, nothing will be shown to the user, 0 - 200 characters
+    show_alert?: Boolean	//	If True, an alert will be shown by the client instead of a notification at the top of the chat screen.Defaults to false.
+    url?: string	//	URL that will be opened by the user's client. If you have created a Game and accepted the conditions via @BotFather, specify the URL that opens your game - note that this will only work if the query comes from a callback_game button.
+    // Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
+    cache_time?: number	//	The maximum amount of time in seconds that the result of the callback query may be cached client - side.Telegram apps will support caching starting in version 3.14.Defaults to 0.
+}
+
+
+// Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object.
+export interface getUserChatBoosts {
+    chat_id: number | string	//	Unique identifier for the chat or username of the channel(in the format @channelusername)
+    user_id: number	//	Unique identifier of the target user
+}
+
+
+// Use this method to get information about the connection of the bot with a business account. Returns a BusinessConnection object on success.
+export interface getBusinessConnection {
+    business_connection_id: string	//	Unique identifier of the business connection
+}
+
+
+// Use this method to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success.
+export interface setMyCommands {
+    commands: BotCommand[]	//	A JSON - serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+    scope?: BotCommandScope	//	A JSON - serialized object, describing scope of users for which the commands are relevant.Defaults to BotCommandScopeDefault.
+    language_code?: string	//	A two - letter ISO 639 - 1 language code.If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+}
+
+
+// Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success.
+export interface deleteMyCommands {
+    scope?: BotCommandScope	//	A JSON - serialized object, describing scope of users for which the commands are relevant.Defaults to BotCommandScopeDefault.
+    language_code?: string	//	A two - letter ISO 639 - 1 language code.If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+}
+
+
+// Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of BotCommand objects. If commands aren't set, an empty list is returned.
+export interface getMyCommands {
+    scope?: BotCommandScope	//	A JSON - serialized object, describing scope of users.Defaults to BotCommandScopeDefault.
+    language_code?: string	//	A two - letter ISO 639 - 1 language code or an empty string
+}
+
+
+// Use this method to change the bot's name. Returns True on success.
+export interface setMyName {
+    name?: string	//	New bot name; 0 - 64 characters.Pass an empty string to remove the dedicated name for the given language.
+    language_code?: string	//	A two - letter ISO 639 - 1 language code.If empty, the name will be shown to all users for whose language there is no dedicated name.
+}
+
+
+// Use this method to get the current bot name for the given user language. Returns BotName on success.
+export interface getMyName {
+    language_code?: string	//	A two - letter ISO 639 - 1 language code or an empty string
+}
+
+
+// Use this method to change the bot's description, which is shown in the chat with the bot if the chat is empty. Returns True on success.
+export interface setMyDescription {
+    description?: string	//	New bot description; 0 - 512 characters.Pass an empty string to remove the dedicated description for the given language.
+    language_code?: string	//	A two - letter ISO 639 - 1 language code.If empty, the description will be applied to all users for whose language there is no dedicated description.
+}
+
+
+// Use this method to get the current bot description for the given user language.Returns BotDescription on success.
+export interface getMyDescription {
+    language_code?: string	//	A two - letter ISO 639 - 1 language code or an empty string
+}
+
+
+// Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot. Returns True on success.
+export interface setMyShortDescription {
+    short_description?: string	//	New short description for the bot; 0 - 120 characters.Pass an empty string to remove the dedicated short description for the given language.
+    language_code?: string	//	A two - letter ISO 639 - 1 language code.If empty, the short description will be applied to all users for whose language there is no dedicated short description.
+}
+
+
+// Use this method to get the current bot short description for the given user language. Returns BotShortDescription on success.
+export interface getMyShortDescription {
+    language_code?: string	//	A two - letter ISO 639 - 1 language code or an empty string
+}
+
+
+// Use this method to change the bot's menu button in a private chat, or the default menu button. Returns True on success.
+export interface setChatMenuButton {
+    chat_id?: number	//	Unique identifier for the target private chat.If not specified, default bot's menu button will be changed
+    menu_button?: MenuButton	//	A JSON - serialized object for the bot's new menu button. Defaults to MenuButtonDefault
+}
+
+
+// Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success.
+export interface getChatMenuButton {
+    chat_id?: number	//	Unique identifier for the target private chat.If not specified, default bot's menu button will be returned
+}
+
+
+// Use this method to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels. These rights will be suggested to users, but they are free to modify the list before adding the bot. Returns True on success.
+export interface setMyDefaultAdministratorRights {
+    rights?: ChatAdministratorRights	//	A JSON - serialized object describing new default administrator rights.If not specified, the default administrator rights will be cleared.
+    for_channels?: Boolean	//	Pass True to change the default administrator rights of the bot in channels.Otherwise, the default administrator rights of the bot for groups and supergroups will be changed.
+}
+
+
+// Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success.
+export interface getMyDefaultAdministratorRights {
+    for_channels?: Boolean	//	Pass True to get default administrator rights of the bot in channels.Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
+}
+// ================
+// Inline mode methods
+// Methods and objects used in the inline mode are described in the Inline mode section.
+// ================
 
 
 

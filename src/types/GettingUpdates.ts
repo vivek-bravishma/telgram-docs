@@ -1,5 +1,10 @@
 // https://core.telegram.org/bots/api#update
 // This object represents an incoming update.
+
+import { BusinessConnection, BusinessMessagesDeleted, CallbackQuery, ChatBoostRemoved, ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated, InputFile, Message, MessageReactionCountUpdated, MessageReactionUpdated, Poll, PollAnswer } from "./AvailableTypes";
+import { ChosenInlineResult, InlineQuery } from "./InlineMode";
+import { PaidMediaPurchased, PreCheckoutQuery, ShippingQuery } from "./Payments";
+
 // At most one of the optional parameters can be present in any given update.
 export interface Update {
     update_id: number;
