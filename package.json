@@ -6,7 +6,9 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "build": "tsc",
-    "dev": "nodemon --exec ts-node src/index.ts"
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "keywords": [],
   "author": "",
@@ -15,6 +17,7 @@
     "@types/express": "^5.0.1",
     "@types/node": "^22.14.0",
     "nodemon": "^3.1.9",
+    "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
@@ -22,3 +25,5 @@
     "express": "^5.1.0"
   }
 }
+
+
