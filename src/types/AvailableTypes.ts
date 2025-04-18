@@ -3,6 +3,7 @@
 // It is safe to use 32-bit signed integers for storing all integer fields unless otherwise noted.
 // Optional fields may be not returned when irrelevant.
 
+import { BaseMessageOrigin, ChatTypes, Dimensions, MessageOriginType } from './Common';
 import { CallbackGame, Game } from './Games';
 import { Invoice, RefundedPayment, SuccessfulPayment } from './Payments';
 import { Sticker } from './Stickers';
@@ -28,7 +29,7 @@ export interface User {
 // This object represents a chat.
 export interface Chat {
 	id: number; // Unique identifier for this chat.This number may have more than 32 significant bits and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit integer or double - precision float type are safe for storing this identifier.
-	type: string; // Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
+	type: ChatTypes; // Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
 	title?: string; // Title, for supergroups, channels and group chats
 	username?: string; // Username, for private chats, supergroups and channels if available
 	first_name?: string; // First name of the other party in a private chat
@@ -37,14 +38,7 @@ export interface Chat {
 }
 
 // This object contains full information about a chat.
-export interface ChatFullInfo {
-	id: number; // Unique identifier for this chat.This number may have more than 32 significant bits and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit integer or double - precision float type are safe for storing this identifier.
-	type: string; // Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
-	title?: string; // Title, for supergroups, channels and group chats
-	username?: string; // Username, for private chats, supergroups and channels if available
-	first_name?: string; // First name of the other party in a private chat
-	last_name?: string; // Last name of the other party in a private chat
-	is_forum?: boolean; // True, if the supergroup chat is a forum(has topics enabled)
+export interface ChatFullInfo extends Chat {
 	accent_color_id: number; // Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview.See accent colors for more details.
 	max_reaction_count: number; // The maximum number of reactions that can be set on a message in the chat
 	photo?: ChatPhoto; // Chat photo
@@ -86,8 +80,7 @@ export interface ChatFullInfo {
 }
 
 // This object represents a message.
-export interface Message {
-	message_id: number; // Unique message identifier inside this chat.In specific instances(e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately.In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
+export interface Message extends MessageId {
 	message_thread_id?: number; // Unique identifier of a message thread to which the message belongs; for supergroups only
 	from?: User; // Sender of the message; may be empty for messages sent to channels.For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non - channel chats
 	sender_chat?: Chat; // Sender of the message when sent on behalf of a chat.For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
@@ -184,9 +177,8 @@ export interface MessageId {
 }
 
 // This object describes a message that was deleted or is otherwise inaccessible to the bot.
-export interface InaccessibleMessage {
+export interface InaccessibleMessage extends MessageId {
 	chat: Chat; // Chat the message belonged to
-	message_id: number; // Unique message identifier inside the chat
 	date: number; // Always 0. The field can be used to differentiate regular and inaccessible messages.
 }
 
@@ -241,8 +233,7 @@ export interface ExternalReplyInfo {
 }
 
 // Describes reply parameters for the message that is being sent.
-export interface ReplyParameters {
-	message_id: number; // Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified
+export interface ReplyParameters extends MessageId {
 	chat_id?: number | string; // If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account.
 	allow_sending_without_reply?: boolean; // Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account.
 	quote?: string; // Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message.
@@ -259,51 +250,42 @@ export type MessageOrigin =
 	| MessageOriginChannel;
 
 // The message was originally sent by a known user.
-export interface MessageOriginUser {
-	type: string; // Type of the message origin, always “user”
-	date: number; // Date the message was sent originally in Unix time
+export interface MessageOriginUser extends BaseMessageOrigin {
+	type: MessageOriginType.User; // Type of the message origin, always “user”
 	sender_user: User; // User that sent the message originally
 }
 
 // The message was originally sent by an unknown user.
-export interface MessageOriginHiddenUser {
-	type: string; // Type of the message origin, always “hidden_user”
-	date: number; // Date the message was sent originally in Unix time
+export interface MessageOriginHiddenUser extends BaseMessageOrigin {
+	type: MessageOriginType.HiddenUser; // Type of the message origin, always “hidden_user”
 	sender_user_name: string; // Name of the user that sent the message originally
 }
 
 // The message was originally sent on behalf of a chat to a group chat.
-export interface MessageOriginChat {
-	type: string; // Type of the message origin, always “chat”
-	date: number; // Date the message was sent originally in Unix time
+export interface MessageOriginChat extends BaseMessageOrigin {
+	type: MessageOriginType.Chat; // Type of the message origin, always “chat”
 	sender_chat: Chat; // Chat that sent the message originally
 	author_signature?: string; // For messages originally sent by an anonymous chat administrator, original message author signature
 }
 
 // The message was originally sent to a channel chat.
-export interface MessageOriginChannel {
-	type: string; // Type of the message origin, always “channel”
-	date: number; // Date the message was sent originally in Unix time
+export interface MessageOriginChannel extends MessageId, BaseMessageOrigin {
+	type: MessageOriginType.Channel; // Type of the message origin, always “channel”
 	chat: Chat; // Channel chat to which the message was originally sent
-	message_id: number; // Unique message identifier inside the chat
 	author_signature?: string; // Signature of the original post author
 }
 
 // This object represents one size of a photo or a file / sticker thumbnail.
-export interface PhotoSize {
+export interface PhotoSize extends Dimensions {
 	file_id: string; // Identifier for this file, which can be used to download or reuse the file
 	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
-	width: number; // Photo width
-	height: number; // Photo height
 	file_size?: number; // File size in bytes
 }
 
 // This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
-export interface Animation {
+export interface Animation extends Dimensions {
 	file_id: string; // Identifier for this file, which can be used to download or reuse the file
 	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
-	width: number; // Video width as defined by the sender
-	height: number; // Video height as defined by the sender
 	duration: number; // Duration of the video in seconds as defined by the sender
 	thumbnail?: PhotoSize; // Animation thumbnail as defined by the sender
 	file_name?: string; // Original animation filename as defined by the sender
@@ -341,11 +323,9 @@ export interface Story {
 }
 
 // This object represents a video file.
-export interface Video {
+export interface Video extends Dimensions {
 	file_id: string; // Identifier for this file, which can be used to download or reuse the file
 	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
-	width: number; // Video width as defined by the sender
-	height: number; // Video height as defined by the sender
 	duration: number; // Duration of the video in seconds as defined by the sender
 	thumbnail?: PhotoSize; // Video thumbnail
 	cover?: PhotoSize[]; // Available sizes of the cover of the video in the message
@@ -386,10 +366,8 @@ export interface PaidMediaInfo {
 export type PaidMedia = PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo;
 
 // The paid media isn't available before the payment.
-export interface PaidMediaPreview {
+export interface PaidMediaPreview extends Partial<Dimensions> {
 	type: string; // Type of the paid media, always “preview”
-	width?: number; // Media width as defined by the sender
-	height?: number; // Media height as defined by the sender
 	duration?: number; // Duration of the media in seconds as defined by the sender
 }
 
@@ -1161,9 +1139,8 @@ export interface ReactionCount {
 }
 
 // This object represents a change of a reaction on a message performed by a user.
-export interface MessageReactionUpdated {
+export interface MessageReactionUpdated extends MessageId {
 	chat: Chat; // The chat containing the message the user reacted to
-	message_id: number; // Unique identifier of the message inside the chat
 	user?: User; // The user that changed the reaction, if the user isn't anonymous
 	actor_chat?: Chat; // The chat on behalf of which the reaction was changed, if the user is anonymous
 	date: number; // Date of the change in Unix time
@@ -1172,9 +1149,8 @@ export interface MessageReactionUpdated {
 }
 
 // This object represents reaction changes on a message with anonymous reactions.
-export interface MessageReactionCountUpdated {
+export interface MessageReactionCountUpdated extends MessageId {
 	chat: Chat; // The chat containing the message
-	message_id: number; // Unique message identifier inside the chat
 	date: number; // Date of the change in Unix time
 	reactions: ReactionCount[]; // List of reactions that are present on the message
 }
@@ -1543,7 +1519,7 @@ export interface InputMediaPhoto {
 }
 
 // Represents a video to be sent.
-export interface InputMediaVideo {
+export interface InputMediaVideo extends Partial<Dimensions> {
 	type: string; // Type of the result, must be video
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	thumbnail?: string; // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
@@ -1553,15 +1529,13 @@ export interface InputMediaVideo {
 	parse_mode?: string; // Mode for parsing entities in the video caption. See formatting options for more details.
 	caption_entities?: MessageEntity[]; // List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media?: boolean; // Pass True, if the caption must be shown above the message media
-	width?: number; // Video width
-	height?: number; // Video height
 	duration?: number; // Video duration in seconds
 	supports_streaming?: boolean; // Pass True if the uploaded video is suitable for streaming
 	has_spoiler?: boolean; // Pass True if the video needs to be covered with a spoiler animation
 }
 
 // Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
-export interface InputMediaAnimation {
+export interface InputMediaAnimation extends Partial<Dimensions> {
 	type: string; // Type of the result, must be animation
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	thumbnail?: string; // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
@@ -1569,8 +1543,6 @@ export interface InputMediaAnimation {
 	parse_mode?: string; // Mode for parsing entities in the animation caption. See formatting options for more details.
 	caption_entities?: MessageEntity[]; // List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media?: boolean; // Pass True, if the caption must be shown above the message media
-	width?: number; // Animation width
-	height?: number; // Animation height
 	duration?: number; // Animation duration in seconds
 	has_spoiler?: boolean; // Pass True if the animation needs to be covered with a spoiler animation
 }
@@ -1612,14 +1584,12 @@ export interface InputPaidMediaPhoto {
 }
 
 // The paid media to send is a video.
-export interface InputPaidMediaVideo {
+export interface InputPaidMediaVideo extends Partial<Dimensions> {
 	type: string; // Type of the media, must be video
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	thumbnail?: string; // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	cover?: string; // Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	start_timestamp?: number; // Start timestamp for the video in the message
-	width?: number; // Video width
-	height?: number; // Video height
 	duration?: number; // Video duration in seconds
 	supports_streaming?: boolean; // Pass True if the uploaded video is suitable for streaming
 }
