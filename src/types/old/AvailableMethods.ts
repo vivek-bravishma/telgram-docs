@@ -6,6 +6,8 @@ import {
 	BotCommandScope,
 	ChatAdministratorRights,
 	ChatPermissions,
+	ForceReply,
+	InlineKeyboardMarkup,
 	InputFile,
 	InputMediaAudio,
 	InputMediaDocument,
@@ -17,17 +19,10 @@ import {
 	MenuButton,
 	MessageEntity,
 	ReactionType,
+	ReplyKeyboardMarkup,
+	ReplyKeyboardRemove,
+	ReplyParameters,
 } from './AvailableTypes';
-import {
-	Coordinates,
-	Dimensions,
-	ParseMode,
-	PollType,
-	ReplyParamAndMarkup,
-	SendMessageBase,
-	WithCaption,
-	WithCaptionAndPosition,
-} from './Common';
 
 // All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods. Use either URL query string or application/json or application/x-www-form-urlencoded or multipart/form-data for passing parameters in Bot API requests.
 // On successful call, a JSON-object containing the result will be returned.
@@ -42,11 +37,20 @@ export interface logOut {}
 export interface close {}
 
 // Use this method to send text messages. On success, the sent Message is returned.
-export interface sendMessage extends SendMessageBase {
+export interface sendMessage {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	text: string; //	Text of the message to be sent, 1-4096 characters after entities parsing
-	parse_mode?: ParseMode; //	Mode for parsing entities in the message text. See formatting options for more details.
+	parse_mode?: string; //	Mode for parsing entities in the message text. See formatting options for more details.
 	entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode
 	link_preview_options?: LinkPreviewOptions; //	Link preview generation options for the message
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Formatting options
@@ -181,15 +185,21 @@ export interface forwardMessages {
 }
 
 // Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
-export interface copyMessage extends WithCaptionAndPosition, ReplyParamAndMarkup {
+export interface copyMessage {
 	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	from_chat_id: number | string; //	Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
 	message_id: number; //	Message identifier in the chat specified in from_chat_id
 	video_start_timestamp?: number; //	New start timestamp for the copied video in the message
+	caption?: string; //	New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept
+	parse_mode?: string; //	Mode for parsing entities in the new caption. See formatting options for more details.
+	caption_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the new caption, which can be specified instead of parse_mode
+	show_caption_above_media?: boolean; //	Pass True, if the caption must be shown above the message media. Ignored if a new caption isn't specified.
 	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
 	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
 	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned.
@@ -204,129 +214,277 @@ export interface copyMessages {
 }
 
 // Use this method to send photos. On success, the sent Message is returned.
-export interface sendPhoto extends SendMessageBase, WithCaptionAndPosition {
+export interface sendPhoto {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	photo: InputFile | string; //	Photo to send. Pass a file_id as string to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a string for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. More information on Sending Files »
+	caption?: string; //	Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing
+	parse_mode?: string; //	Mode for parsing entities in the photo caption. See formatting options for more details.
+	caption_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	show_caption_above_media?: boolean; //	Pass True, if the caption must be shown above the message media
 	has_spoiler?: boolean; //	Pass True if the photo needs to be covered with a spoiler animation
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
 // For sending voice messages, use the sendVoice method instead.
-export interface sendAudio extends SendMessageBase, WithCaption {
+export interface sendAudio {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	audio: InputFile | string; //	Audio file to send. Pass a file_id as string to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a string for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
+	caption?: string; //	Audio caption, 0-1024 characters after entities parsing
+	parse_mode?: string; //	Mode for parsing entities in the audio caption. See formatting options for more details.
+	caption_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
 	duration?: number; //	Duration of the audio in seconds
 	performer?: string; //	Performer
 	title?: string; //	Track name
 	thumbnail?: InputFile | string; //	Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
-export interface sendDocument extends SendMessageBase, WithCaption {
+export interface sendDocument {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	document: InputFile | string; //	File to send. Pass a file_id as string to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a string for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
 	thumbnail?: InputFile | string; //	Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	caption?: string; //	Document caption (may also be used when resending documents by file_id), 0-1024 characters after entities parsing
+	parse_mode?: string; //	Mode for parsing entities in the document caption. See formatting options for more details.
+	caption_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
 	disable_content_type_detection?: boolean; //	Disables automatic server-side content type detection for files uploaded using multipart/form-data
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
-export interface sendVideo extends SendMessageBase, WithCaptionAndPosition, Partial<Dimensions> {
+export interface sendVideo {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	video: InputFile | string; //	Video to send. Pass a file_id as string to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a string for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. More information on Sending Files »
 	duration?: number; //	Duration of sent video in seconds
+	width?: number; //	Video width
+	height?: number; //	Video height
 	thumbnail?: InputFile | string; //	Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	cover?: InputFile | string; //	Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	start_timestamp?: number; //	Start timestamp for the video in the message
+	caption?: string; //	Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing
+	parse_mode?: string; //	Mode for parsing entities in the video caption. See formatting options for more details.
+	caption_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	show_caption_above_media?: boolean; //	Pass True, if the caption must be shown above the message media
 	has_spoiler?: boolean; //	Pass True if the video needs to be covered with a spoiler animation
 	supports_streaming?: boolean; //	Pass True if the uploaded video is suitable for streaming
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future.
-export interface sendAnimation
-	extends SendMessageBase,
-		WithCaptionAndPosition,
-		Partial<Dimensions> {
+export interface sendAnimation {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	animation: InputFile | string; //	Animation to send. Pass a file_id as string to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a string for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. More information on Sending Files »
 	duration?: number; //	Duration of sent animation in seconds
+	width?: number; //	Animation width
+	height?: number; //	Animation height
 	thumbnail?: InputFile | string; //	Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	caption?: string; //	Animation caption (may also be used when resending animation by file_id), 0-1024 characters after entities parsing
+	parse_mode?: string; //	Mode for parsing entities in the animation caption. See formatting options for more details.
+	caption_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	show_caption_above_media?: boolean; //	Pass True, if the caption must be shown above the message media
 	has_spoiler?: boolean; //	Pass True if the animation needs to be covered with a spoiler animation
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
-export interface sendVoice extends SendMessageBase, WithCaption {
+export interface sendVoice {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	voice: InputFile | string; //	Audio file to send. Pass a file_id as string to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a string for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
+	caption?: string; //	Voice message caption, 0-1024 characters after entities parsing
+	parse_mode?: string; //	Mode for parsing entities in the voice message caption. See formatting options for more details.
+	caption_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
 	duration?: number; //	Duration of the voice message in seconds
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // As of v.4.0, Telegram clients support rounded square MPEG4 videos of up to 1 minute long.Use this method to send video messages.On success, the sent Message is returned.
-export interface sendVideoNote extends SendMessageBase {
+export interface sendVideoNote {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	video_note: InputFile | string; //	Video note to send. Pass a file_id as string to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files ». Sending video notes by a URL is currently unsupported
 	duration?: number; //	Duration of sent video in seconds
 	length?: number; //	Video width and height, i.e. diameter of the video message
 	thumbnail?: InputFile | string; //	Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send paid media. On success, the sent Message is returned.
-export interface sendPaidMedia extends WithCaptionAndPosition, ReplyParamAndMarkup {
+export interface sendPaidMedia {
 	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
 	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername). If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance.
 	star_count: number; //	The number of Telegram Stars that must be paid to buy access to the media; 1-10000
 	media: InputPaidMedia[]; //	A JSON-serialized array describing the media to be sent; up to 10 items
 	payload?: string; //	Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes.
+	caption?: string; //	Media caption, 0-1024 characters after entities parsing
+	parse_mode?: string; //	Mode for parsing entities in the media caption. See formatting options for more details.
+	caption_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	show_caption_above_media?: boolean; //	Pass True, if the caption must be shown above the message media
 	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
 	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
 	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Messages that were sent is returned.
-export interface sendMediaGroup extends Omit<SendMessageBase, 'reply_markup'> {
+export interface sendMediaGroup {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	// media:	Array of InputMediaAudio, InputMediaDocument, InputMediaPhoto and InputMediaVideo	;   //	A JSON-serialized array describing messages to be sent, must include 2-10 items
 	media: InputMediaAudio[] | InputMediaDocument[] | InputMediaPhoto[] | InputMediaVideo[]; //  A JSON-serialized array describing messages to be sent, must include 2-10 items
+	disable_notification?: boolean; //	Sends messages silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent messages from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
 }
 
 // Use this method to send point on the map. On success, the sent Message is returned.
-export interface sendLocation extends SendMessageBase, Coordinates {
+export interface sendLocation {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	latitude: number; //	Latitude of the location
+	longitude: number; //	Longitude of the location
 	horizontal_accuracy?: number; //	The radius of uncertainty for the location, measured in meters; 0-1500
 	live_period?: number; //	Period in seconds during which the location will be updated (see Live Locations, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
 	heading?: number; //	For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
 	proximity_alert_radius?: number; //	For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send information about a venue. On success, the sent Message is returned.
-export interface sendVenue extends SendMessageBase, Coordinates {
+export interface sendVenue {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	latitude: number; //	Latitude of the venue
+	longitude: number; //	Longitude of the venue
 	title: string; //	Name of the venue
 	address: string; //	Address of the venue
 	foursquare_id?: string; //	Foursquare identifier of the venue
 	foursquare_type?: string; //	Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
 	google_place_id?: string; //	Google Places identifier of the venue
 	google_place_type?: string; //	Google Places type of the venue. (See supported types.)
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send phone contacts. On success, the sent Message is returned.
-export interface sendContact extends SendMessageBase {
+export interface sendContact {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	phone_number: string; //	Contact's phone number
 	first_name: string; //	Contact's first name
 	last_name?: string; //	Contact's last name
 	vcard?: string; //	Additional data about the contact in the form of a vCard, 0-2048 bytes
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send a native poll. On success, the sent Message is returned.
-export interface sendPoll extends SendMessageBase {
+export interface sendPoll {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	question: string; //	Poll question, 1-300 characters
 	question_parse_mode?: string; //	Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed
 	question_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of question_parse_mode
 	options: InputPollOption[]; //	A JSON-serialized list of 2-10 answer options
 	is_anonymous?: boolean; //	True, if the poll needs to be anonymous, defaults to True
-	type?: PollType; //	Poll type, “quiz” or “regular”, defaults to “regular”
+	type?: string; //	Poll type, “quiz” or “regular”, defaults to “regular”
 	allows_multiple_answers?: boolean; //	True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False
 	correct_option_id?: number; //	0-based identifier of the correct answer option, required for polls in quiz mode
 	explanation?: string; //	Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing
-	explanation_parse_mode?: ParseMode; //	Mode for parsing entities in the explanation. See formatting options for more details.
+	explanation_parse_mode?: string; //	Mode for parsing entities in the explanation. See formatting options for more details.
 	explanation_entities?: MessageEntity[]; //	A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of explanation_parse_mode
 	open_period?: number; //	Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date.
 	close_date?: number; //	Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period.
 	is_closed?: boolean; //	Pass True if the poll needs to be immediately closed. This can be useful for poll preview.
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method to send an animated emoji that will display a random value. On success, the sent Message is returned.
-export interface sendDice extends SendMessageBase {
+export interface sendDice {
+	business_connection_id?: string; //	Unique identifier of the business connection on behalf of which the message will be sent
+	chat_id: number | string; //	Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	message_thread_id?: number; //	Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	emoji?: string; //	Emoji on which the dice throw animation is based. Currently, must be one of “🎲”, “🎯”, “🏀”, “⚽”, “🎳”, or “🎰”. Dice can have values 1-6 for “🎲”, “🎯” and “🎳”, values 1-5 for “🏀” and “⚽”, and values 1-64 for “🎰”. Defaults to “🎲”
+	disable_notification?: boolean; //	Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; //	Protects the contents of the sent message from forwarding
+	allow_paid_broadcast?: boolean; //	Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; //	Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; //	Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply; //	Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success.

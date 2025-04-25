@@ -3,16 +3,6 @@
 // It is safe to use 32-bit signed integers for storing all integer fields unless otherwise noted.
 // Optional fields may be not returned when irrelevant.
 
-import {
-	BaseMessageOrigin,
-	ChatTypes,
-	Coordinates,
-	Dimensions,
-	MessageEntityType,
-	ParseMode,
-	PollType,
-	TgFile,
-} from './Common';
 import { CallbackGame, Game } from './Games';
 import { Invoice, RefundedPayment, SuccessfulPayment } from './Payments';
 import { Sticker } from './Stickers';
@@ -38,7 +28,7 @@ export interface User {
 // This object represents a chat.
 export interface Chat {
 	id: number; // Unique identifier for this chat.This number may have more than 32 significant bits and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit integer or double - precision float type are safe for storing this identifier.
-	type: ChatTypes; // Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
+	type: string; // Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
 	title?: string; // Title, for supergroups, channels and group chats
 	username?: string; // Username, for private chats, supergroups and channels if available
 	first_name?: string; // First name of the other party in a private chat
@@ -47,7 +37,14 @@ export interface Chat {
 }
 
 // This object contains full information about a chat.
-export interface ChatFullInfo extends Chat {
+export interface ChatFullInfo {
+	id: number; // Unique identifier for this chat.This number may have more than 32 significant bits and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit integer or double - precision float type are safe for storing this identifier.
+	type: string; // Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
+	title?: string; // Title, for supergroups, channels and group chats
+	username?: string; // Username, for private chats, supergroups and channels if available
+	first_name?: string; // First name of the other party in a private chat
+	last_name?: string; // Last name of the other party in a private chat
+	is_forum?: boolean; // True, if the supergroup chat is a forum(has topics enabled)
 	accent_color_id: number; // Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview.See accent colors for more details.
 	max_reaction_count: number; // The maximum number of reactions that can be set on a message in the chat
 	photo?: ChatPhoto; // Chat photo
@@ -89,7 +86,8 @@ export interface ChatFullInfo extends Chat {
 }
 
 // This object represents a message.
-export interface Message extends MessageId {
+export interface Message {
+	message_id: number; // Unique message identifier inside this chat.In specific instances(e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately.In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
 	message_thread_id?: number; // Unique identifier of a message thread to which the message belongs; for supergroups only
 	from?: User; // Sender of the message; may be empty for messages sent to channels.For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non - channel chats
 	sender_chat?: Chat; // Sender of the message when sent on behalf of a chat.For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
@@ -186,8 +184,9 @@ export interface MessageId {
 }
 
 // This object describes a message that was deleted or is otherwise inaccessible to the bot.
-export interface InaccessibleMessage extends MessageId {
+export interface InaccessibleMessage {
 	chat: Chat; // Chat the message belonged to
+	message_id: number; // Unique message identifier inside the chat
 	date: number; // Always 0. The field can be used to differentiate regular and inaccessible messages.
 }
 
@@ -196,7 +195,7 @@ export type MaybeInaccessibleMessage = Message | InaccessibleMessage;
 
 // This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 export interface MessageEntity {
-	type: MessageEntityType; // Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers)
+	type: string; // Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers)
 	offset: number; // Offset in UTF-16 code units to the start of the entity
 	length: number; // Length of the entity in UTF-16 code units
 	url?: string; // For “text_link” only, URL that will be opened after user taps on the text
@@ -242,11 +241,12 @@ export interface ExternalReplyInfo {
 }
 
 // Describes reply parameters for the message that is being sent.
-export interface ReplyParameters extends MessageId {
+export interface ReplyParameters {
+	message_id: number; // Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified
 	chat_id?: number | string; // If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account.
 	allow_sending_without_reply?: boolean; // Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account.
 	quote?: string; // Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message.
-	quote_parse_mode?: ParseMode; // Mode for parsing entities in the quote. See formatting options for more details.
+	quote_parse_mode?: string; // Mode for parsing entities in the quote. See formatting options for more details.
 	quote_entities?: MessageEntity[]; // A JSON-serialized list of special entities that appear in the quote. It can be specified instead of quote_parse_mode.
 	quote_position?: number; // Position of the quote in the original message in UTF-16 code units
 }
@@ -259,53 +259,79 @@ export type MessageOrigin =
 	| MessageOriginChannel;
 
 // The message was originally sent by a known user.
-export interface MessageOriginUser extends BaseMessageOrigin {
-	type: 'user'; // Type of the message origin, always “user”
+export interface MessageOriginUser {
+	type: string; // Type of the message origin, always “user”
+	date: number; // Date the message was sent originally in Unix time
 	sender_user: User; // User that sent the message originally
 }
 
 // The message was originally sent by an unknown user.
-export interface MessageOriginHiddenUser extends BaseMessageOrigin {
-	type: 'hidden_user'; // Type of the message origin, always “hidden_user”
+export interface MessageOriginHiddenUser {
+	type: string; // Type of the message origin, always “hidden_user”
+	date: number; // Date the message was sent originally in Unix time
 	sender_user_name: string; // Name of the user that sent the message originally
 }
 
 // The message was originally sent on behalf of a chat to a group chat.
-export interface MessageOriginChat extends BaseMessageOrigin {
-	type: 'chat'; // Type of the message origin, always “chat”
+export interface MessageOriginChat {
+	type: string; // Type of the message origin, always “chat”
+	date: number; // Date the message was sent originally in Unix time
 	sender_chat: Chat; // Chat that sent the message originally
 	author_signature?: string; // For messages originally sent by an anonymous chat administrator, original message author signature
 }
 
 // The message was originally sent to a channel chat.
-export interface MessageOriginChannel extends MessageId, BaseMessageOrigin {
-	type: 'channel'; // Type of the message origin, always “channel”
+export interface MessageOriginChannel {
+	type: string; // Type of the message origin, always “channel”
+	date: number; // Date the message was sent originally in Unix time
 	chat: Chat; // Channel chat to which the message was originally sent
+	message_id: number; // Unique message identifier inside the chat
 	author_signature?: string; // Signature of the original post author
 }
 
 // This object represents one size of a photo or a file / sticker thumbnail.
-export interface PhotoSize
-	extends Dimensions,
-		Omit<TgFile, 'file_path' | 'file_name' | 'mime_type'> {}
+export interface PhotoSize {
+	file_id: string; // Identifier for this file, which can be used to download or reuse the file
+	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
+	width: number; // Photo width
+	height: number; // Photo height
+	file_size?: number; // File size in bytes
+}
 
 // This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
-export interface Animation extends Dimensions, Omit<TgFile, 'file_path'> {
+export interface Animation {
+	file_id: string; // Identifier for this file, which can be used to download or reuse the file
+	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
+	width: number; // Video width as defined by the sender
+	height: number; // Video height as defined by the sender
 	duration: number; // Duration of the video in seconds as defined by the sender
 	thumbnail?: PhotoSize; // Animation thumbnail as defined by the sender
+	file_name?: string; // Original animation filename as defined by the sender
+	mime_type?: string; // MIME type of the file as defined by the sender
+	file_size?: number; // File size in bytes.It can be bigger than 2 ^ 31 and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit integer or double - precision float type are safe for storing this value.
 }
 
 // This object represents an audio file to be treated as music by the Telegram clients.
-export interface Audio extends Omit<TgFile, 'file_path'> {
+export interface Audio {
+	file_id: string; // Identifier for this file, which can be used to download or reuse the file
+	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
 	duration: number; // Duration of the audio in seconds as defined by the sender
 	performer?: string; // Performer of the audio as defined by the sender or by audio tags
 	title?: string; // Title of the audio as defined by the sender or by audio tags
+	file_name?: string; // Original filename as defined by the sender
+	mime_type?: string; // MIME type of the file as defined by the sender
+	file_size?: number; // File size in bytes.It can be bigger than 2 ^ 31 and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit integer or double - precision float type are safe for storing this value.
 	thumbnail?: PhotoSize; // Thumbnail of the album cover to which the music file belongs
 }
 
 // This object represents a general file (as opposed to photos, voice messages and audio files).
-export interface Document extends Omit<TgFile, 'file_path'> {
+export interface Document {
+	file_id: string; // Identifier for this file, which can be used to download or reuse the file
+	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
 	thumbnail?: PhotoSize; // Document thumbnail as defined by the sender
+	file_name?: string; // Original filename as defined by the sender
+	mime_type?: string; // MIME type of the file as defined by the sender
+	file_size?: number; // File size in bytes.It can be bigger than 2 ^ 31 and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit integer or double - precision float type are safe for storing this value.
 }
 
 // This object represents a story.
@@ -315,23 +341,37 @@ export interface Story {
 }
 
 // This object represents a video file.
-export interface Video extends Dimensions, Omit<TgFile, 'file_path'> {
+export interface Video {
+	file_id: string; // Identifier for this file, which can be used to download or reuse the file
+	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
+	width: number; // Video width as defined by the sender
+	height: number; // Video height as defined by the sender
 	duration: number; // Duration of the video in seconds as defined by the sender
 	thumbnail?: PhotoSize; // Video thumbnail
 	cover?: PhotoSize[]; // Available sizes of the cover of the video in the message
 	start_timestamp?: number; // Timestamp in seconds from which the video will play in the message
+	file_name?: string; // Original filename as defined by the sender
+	mime_type?: string; // MIME type of the file as defined by the sender
+	file_size?: number; // File size in bytes.It can be bigger than 2 ^ 31 and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit integer or double - precision float type are safe for storing this value.
 }
 
 // This object represents a video message (available in Telegram apps as of v.4.0).
-export interface VideoNote extends Omit<TgFile, 'file_path' | 'file_name' | 'mime_type'> {
+export interface VideoNote {
+	file_id: string; // Identifier for this file, which can be used to download or reuse the file
+	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
 	length: number; // Video width and height(diameter of the video message) as defined by the sender
 	duration: number; // Duration of the video in seconds as defined by the sender
 	thumbnail?: PhotoSize; // Video thumbnail
+	file_size?: number; // File size in bytes
 }
 
 // This object represents a voice note.
-export interface Voice extends Omit<TgFile, 'file_path' | 'file_name'> {
+export interface Voice {
+	file_id: string; // Identifier for this file, which can be used to download or reuse the file
+	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
 	duration: number; // Duration of the audio in seconds as defined by the sender
+	mime_type?: string; // MIME type of the file as defined by the sender
+	file_size?: number; // File size in bytes.It can be bigger than 2 ^ 31 and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit integer or double - precision float type are safe for storing this value.
 }
 
 // Describes the paid media added to a message.
@@ -346,20 +386,22 @@ export interface PaidMediaInfo {
 export type PaidMedia = PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo;
 
 // The paid media isn't available before the payment.
-export interface PaidMediaPreview extends Partial<Dimensions> {
-	type: 'preview'; // Type of the paid media, always “preview”
+export interface PaidMediaPreview {
+	type: string; // Type of the paid media, always “preview”
+	width?: number; // Media width as defined by the sender
+	height?: number; // Media height as defined by the sender
 	duration?: number; // Duration of the media in seconds as defined by the sender
 }
 
 // The paid media is a photo.
 export interface PaidMediaPhoto {
-	type: 'photo'; // Type of the paid media, always “photo”
+	type: string; // Type of the paid media, always “photo”
 	photo: PhotoSize[]; // The photo
 }
 
 // The paid media is a video.
 export interface PaidMediaVideo {
-	type: 'video'; // Type of the paid media, always “video”
+	type: string; // Type of the paid media, always “video”
 	video: Video; // The video
 }
 
@@ -409,7 +451,7 @@ export interface Poll {
 	total_voter_count: number; // Total number of users that voted in the poll
 	is_closed: boolean; // True, if the poll is closed
 	is_anonymous: boolean; // True, if the poll is anonymous
-	type: PollType; // Poll type, currently can be “regular” or “quiz”
+	type: string; // Poll type, currently can be “regular” or “quiz”
 	allows_multiple_answers: boolean; // True, if the poll allows multiple answers
 	correct_option_id?: number; //  0 - based identifier of the correct answer option.Available only for polls in the quiz mode, which are closed, or was sent(not forwarded) by the bot or to the private chat with the bot.
 	explanation?: string; // Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz - style poll, 0 - 200 characters
@@ -419,7 +461,9 @@ export interface Poll {
 }
 
 // This object represents a point on the map.
-export interface Location extends Coordinates {
+export interface Location {
+	latitude: number; // Latitude as defined by the sender
+	longitude: number; // Longitude as defined by the sender
 	horizontal_accuracy?: number; // The radius of uncertainty for the location, measured in meters; 0 - 1500
 	live_period?: number; // Time relative to the message sending date, during which the location can be updated; in seconds.For active live locations only.
 	heading?: number; // The direction in which user is moving, in degrees; 1 - 360. For active live locations only.
@@ -470,13 +514,13 @@ export type BackgroundFill =
 
 // The background is filled using the selected color.
 export interface BackgroundFillSolid {
-	type: 'solid'; // Type of the background fill, always “solid”
+	type: string; // Type of the background fill, always “solid”
 	color: number; // The color of the background fill in the RGB24 format
 }
 
 // The background is a gradient fill.
 export interface BackgroundFillGradient {
-	type: 'gradient'; // Type of the background fill, always “gradient”
+	type: string; // Type of the background fill, always “gradient”
 	top_color: number; // Top color of the gradient in the RGB24 format
 	bottom_color: number; // Bottom color of the gradient in the RGB24 format
 	rotation_angle: number; // Clockwise rotation angle of the background fill in degrees; 0 - 359
@@ -484,7 +528,7 @@ export interface BackgroundFillGradient {
 
 // The background is a freeform gradient that rotates after every message in the chat.
 export interface BackgroundFillFreeformGradient {
-	type: 'freeform_gradient'; // Type of the background fill, always “freeform_gradient”
+	type: string; // Type of the background fill, always “freeform_gradient”
 	colors: number[]; // A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
 }
 
@@ -500,14 +544,14 @@ export type BackgroundType =
 
 // The background is automatically filled based on the selected colors.
 export interface BackgroundTypeFill {
-	type: 'fill'; // Type of the background, always “fill”
+	type: string; // Type of the background, always “fill”
 	fill: BackgroundFill; // The background fill
 	dark_theme_dimming: number; // Dimming of the background in dark themes, as a percentage; 0 - 100
 }
 
 // The background is a wallpaper in the JPEG format.
 export interface BackgroundTypeWallpaper {
-	type: 'wallpaper'; // Type of the background, always “wallpaper”
+	type: string; // Type of the background, always “wallpaper”
 	document: Document; // Document with the wallpaper
 	dark_theme_dimming: number; // Dimming of the background in dark themes, as a percentage; 0 - 100
 	is_blurred?: boolean; // True, if the wallpaper is downscaled to fit in a 450x450 square and then box - blurred with radius 12
@@ -516,7 +560,7 @@ export interface BackgroundTypeWallpaper {
 
 // The background is a .PNG or .TGV (gzipped subset of SVG with MIME type “application/x-tgwallpattern”) pattern to be combined with the background fill chosen by the user.
 export interface BackgroundTypePattern {
-	type: 'pattern'; // Type of the background, always “pattern”
+	type: string; // Type of the background, always “pattern”
 	document: Document; // Document with the pattern
 	fill: BackgroundFill; // The background fill that is combined with the pattern
 	intensity: number; // Intensity of the pattern when it is shown above the filled background; 0 - 100
@@ -526,7 +570,7 @@ export interface BackgroundTypePattern {
 
 // The background is taken directly from a built-in chat theme.
 export interface BackgroundTypeChatTheme {
-	type: 'chat_theme'; // Type of the background, always “chat_theme”
+	type: string; // Type of the background, always “chat_theme”
 	theme_name: string; // Name of the chat theme, which is usually an emoji
 }
 
@@ -675,7 +719,12 @@ export interface UserProfilePhotos {
 
 // This object represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
 // The maximum file size to download is 20 MB
-export interface File extends Omit<TgFile, 'file_name' | 'mime_type'> {}
+export interface File {
+	file_id: string; // Identifier for this file, which can be used to download or reuse the file
+	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
+	file_size?: number; // File size in bytes.It can be bigger than 2 ^ 31 and some programming languages may have difficulty / silent defects in interpreting it.But it has at most 52 significant bits, so a signed 64 - bit number or double - precision float type are safe for storing this value.
+	file_path?: string; // File path.Use https://api.telegram.org/file/bot<token>/<file_path> to get the file.
+}
 
 // Describes a Web App.
 export interface WebAppInfo {
@@ -880,7 +929,7 @@ export type ChatMember =
 
 // Represents a chat member that owns the chat and has all administrator privileges.
 export interface ChatMemberOwner {
-	status: 'creator'; // The member's status in the chat, always “creator”
+	status: string; // The member's status in the chat, always “creator”
 	user: User; // Information about the user
 	is_anonymous: boolean; // True, if the user's presence in the chat is hidden
 	custom_title?: string; // Custom title for this user
@@ -888,7 +937,7 @@ export interface ChatMemberOwner {
 
 // Represents a chat member that has some additional privileges.
 export interface ChatMemberAdministrator {
-	status: 'administrator'; // The member's status in the chat, always “administrator”
+	status: string; // The member's status in the chat, always “administrator”
 	user: User; // Information about the user
 	can_be_edited: boolean; // True, if the bot is allowed to edit administrator privileges of that user
 	is_anonymous: boolean; // True, if the user's presence in the chat is hidden
@@ -911,14 +960,14 @@ export interface ChatMemberAdministrator {
 
 // Represents a chat member that has no additional privileges or restrictions.
 export interface ChatMemberMember {
-	status: 'member'; // The member's status in the chat, always “member”
+	status: string; // The member's status in the chat, always “member”
 	user: User; // Information about the user
 	until_date?: number; // Date when the user's subscription will expire; Unix time
 }
 
 // Represents a chat member that is under certain restrictions in the chat. Supergroups only.
 export interface ChatMemberRestricted {
-	status: 'restricted'; // The member's status in the chat, always “restricted”
+	status: string; // The member's status in the chat, always “restricted”
 	user: User; // Information about the user
 	is_member: boolean; // True, if the user is a member of the chat at the moment of the request
 	can_send_messages: boolean; // True, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
@@ -940,13 +989,13 @@ export interface ChatMemberRestricted {
 
 // Represents a chat member that isn't currently a member of the chat, but may join it themselves.
 export interface ChatMemberLeft {
-	status: 'left'; // The member's status in the chat, always “left”
+	status: string; // The member's status in the chat, always “left”
 	user: User; // Information about the user
 }
 
 // Represents a chat member that was banned in the chat and can't return to the chat or view chat messages.
 export interface ChatMemberBanned {
-	status: 'kicked'; // The member's status in the chat, always “kicked”
+	status: string; // The member's status in the chat, always “kicked”
 	user: User; // Information about the user
 	until_date: number; // Date when restrictions will be lifted for this user; Unix time.If 0, then the user is banned forever
 }
@@ -1038,14 +1087,16 @@ export type StoryAreaType =
 	| StoryAreaTypeUniqueGift;
 
 // Describes a story area pointing to a location. Currently, a story can have up to 10 location areas.
-export interface StoryAreaTypeLocation extends Coordinates {
-	type: 'location'; // Type of the area, always “location”
+export interface StoryAreaTypeLocation {
+	type: string; // Type of the area, always “location”
+	latitude: number; // Location latitude in degrees
+	longitude: number; // Location longitude in degrees
 	address?: LocationAddress; // Address of the location
 }
 
 // Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas.
 export interface StoryAreaTypeSuggestedReaction {
-	type: 'suggested_reaction'; // Type of the area, always “suggested_reaction”
+	type: string; // Type of the area, always “suggested_reaction”
 	reaction_type: ReactionType; // Type of the reaction
 	is_dark?: boolean; // Pass True if the reaction area has a dark background
 	is_flipped?: boolean; // Pass True if reaction area corner is flipped
@@ -1053,13 +1104,13 @@ export interface StoryAreaTypeSuggestedReaction {
 
 // Describes a story area pointing to an HTTP or tg:// link. Currently, a story can have up to 3 link areas.
 export interface StoryAreaTypeLink {
-	type: 'link'; // Type of the area, always “link”
+	type: string; // Type of the area, always “link”
 	url: string; // HTTP or tg:// URL to be opened when the area is clicked
 }
 
 // Describes a story area containing weather information. Currently, a story can have up to 3 weather areas.
 export interface StoryAreaTypeWeather {
-	type: 'weather'; // Type of the area, always “weather”
+	type: string; // Type of the area, always “weather”
 	temperature: number; // Temperature, in degree Celsius
 	emoji: string; // Emoji representing the weather
 	background_color: number; // A color of the area background in the ARGB format
@@ -1067,7 +1118,7 @@ export interface StoryAreaTypeWeather {
 
 // Describes a story area pointing to a unique gift. Currently, a story can have at most 1 unique gift area.
 export interface StoryAreaTypeUniqueGift {
-	type: 'unique_gift'; // Type of the area, always “unique_gift”
+	type: string; // Type of the area, always “unique_gift”
 	name: string; // Unique name of the gift
 }
 
@@ -1088,19 +1139,19 @@ export type ReactionType = ReactionTypeEmoji | ReactionTypeCustomEmoji | Reactio
 
 // The reaction is based on an emoji.
 export interface ReactionTypeEmoji {
-	type: 'emoji'; // Type of the reaction, always “emoji”
+	type: string; // Type of the reaction, always “emoji”
 	emoji: string; // Reaction emoji.Currently, it can be one of "👍", "👎", "❤", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🤬", "😢", "🎉", "🤩", "🤮", "💩", "🙏", "👌", "🕊", "🤡", "🥱", "🥴", "😍", "🐳", "❤‍🔥", "🌚", "🌭", "💯", "🤣", "⚡", "🍌", "🏆", "💔", "🤨", "😐", "🍓", "🍾", "💋", "🖕", "😈", "😴", "😭", "🤓", "👻", "👨‍💻", "👀", "🎃", "🙈", "😇", "😨", "🤝", "✍", "🤗", "🫡", "🎅", "🎄", "☃", "💅", "🤪", "🗿", "🆒", "💘", "🙉", "🦄", "😘", "💊", "🙊", "😎", "👾", "🤷‍♂", "🤷", "🤷‍♀", "😡"
 }
 
 // The reaction is based on a custom emoji.
 export interface ReactionTypeCustomEmoji {
-	type: 'custom_emoji'; // Type of the reaction, always “custom_emoji”
+	type: string; // Type of the reaction, always “custom_emoji”
 	custom_emoji_id: string; // Custom emoji identifier
 }
 
 // The reaction is paid.
 export interface ReactionTypePaid {
-	type: 'paid'; // Type of the reaction, always “paid”
+	type: string; // Type of the reaction, always “paid”
 }
 
 // Represents a reaction added to a message along with the number of times it was added.
@@ -1110,8 +1161,9 @@ export interface ReactionCount {
 }
 
 // This object represents a change of a reaction on a message performed by a user.
-export interface MessageReactionUpdated extends MessageId {
+export interface MessageReactionUpdated {
 	chat: Chat; // The chat containing the message the user reacted to
+	message_id: number; // Unique identifier of the message inside the chat
 	user?: User; // The user that changed the reaction, if the user isn't anonymous
 	actor_chat?: Chat; // The chat on behalf of which the reaction was changed, if the user is anonymous
 	date: number; // Date of the change in Unix time
@@ -1120,8 +1172,9 @@ export interface MessageReactionUpdated extends MessageId {
 }
 
 // This object represents reaction changes on a message with anonymous reactions.
-export interface MessageReactionCountUpdated extends MessageId {
+export interface MessageReactionCountUpdated {
 	chat: Chat; // The chat containing the message
+	message_id: number; // Unique message identifier inside the chat
 	date: number; // Date of the change in Unix time
 	reactions: ReactionCount[]; // List of reactions that are present on the message
 }
@@ -1213,7 +1266,7 @@ export type OwnedGift = OwnedGiftRegular | OwnedGiftUnique;
 
 // Describes a regular gift owned by a user or a chat.
 export interface OwnedGiftRegular {
-	type: 'regular'; // Type of the gift, always “regular”
+	type: string; // Type of the gift, always “regular”
 	gift: Gift; // Information about the regular gift
 	owned_gift_id?: string; // Unique identifier of the gift for the bot; for gifts received on behalf of business accounts only
 	sender_user?: User; // Sender of the gift if it is a known user
@@ -1230,7 +1283,7 @@ export interface OwnedGiftRegular {
 
 // Describes a unique gift received and owned by a user or a chat.
 export interface OwnedGiftUnique {
-	type: 'unique'; // Type of the gift, always “unique”
+	type: string; // Type of the gift, always “unique”
 	gift: UniqueGift; // Information about the unique gift
 	owned_gift_id?: string; // Unique identifier of the received gift for the bot; for gifts received on behalf of business accounts only
 	sender_user?: User; // Sender of the gift if it is a known user
@@ -1302,39 +1355,39 @@ export type BotCommandScope =
 
 // Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
 export interface BotCommandScopeDefault {
-	type: 'default'; // Scope type, must be default
+	type: string; // Scope type, must be default
 }
 
 // Represents the scope of bot commands, covering all private chats.
 export interface BotCommandScopeAllPrivateChats {
-	type: 'all_private_chats'; // Scope type, must be all_private_chats
+	type: string; // Scope type, must be all_private_chats
 }
 
 // Represents the scope of bot commands, covering all group and supergroup chats.
 export interface BotCommandScopeAllGroupChats {
-	type: 'all_group_chats'; // Scope type, must be all_group_chats
+	type: string; // Scope type, must be all_group_chats
 }
 
 // Represents the scope of bot commands, covering all group and supergroup chat administrators.
 export interface BotCommandScopeAllChatAdministrators {
-	type: 'all_chat_administrators'; // Scope type, must be all_chat_administrators
+	type: string; // Scope type, must be all_chat_administrators
 }
 
 // Represents the scope of bot commands, covering a specific chat.
 export interface BotCommandScopeChat {
-	type: 'chat'; // Scope type, must be chat
+	type: string; // Scope type, must be chat
 	chat_id: number | string; // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
 }
 
 // Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
 export interface BotCommandScopeChatAdministrators {
-	type: 'chat_administrators'; // Scope type, must be chat_administrators
+	type: string; // Scope type, must be chat_administrators
 	chat_id: number | string; // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
 }
 
 // Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
 export interface BotCommandScopeChatMember {
-	type: 'chat_member'; // Scope type, must be chat_member
+	type: string; // Scope type, must be chat_member
 	chat_id: number | string; // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
 	user_id: number; // Unique identifier of the target user
 }
@@ -1360,19 +1413,19 @@ export type MenuButton = MenuButtonCommands | MenuButtonWebApp | MenuButtonDefau
 
 // Represents a menu button, which opens the bot's list of commands.
 export interface MenuButtonCommands {
-	type: 'commands'; // Type of the button, must be commands
+	type: string; // Type of the button, must be commands
 }
 
 // Represents a menu button, which launches a Web App.
 export interface MenuButtonWebApp {
-	type: 'web_app'; // Type of the button, must be web_app
+	type: string; // Type of the button, must be web_app
 	text: string; // Text on the button
 	web_app: WebAppInfo; // Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Alternatively, a t.me link to a Web App of the bot can be specified in the object instead of the Web App's URL, in which case the Web App will be opened as if the user pressed the link.
 }
 
 // Describes that no specific value for the menu button was set.
 export interface MenuButtonDefault {
-	type: 'default'; // Type of the button, must be default
+	type: string; // Type of the button, must be default
 }
 
 // This object describes the source of a chat boost. It can be one of
@@ -1383,19 +1436,19 @@ export type ChatBoostSource =
 
 // The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user.
 export interface ChatBoostSourcePremium {
-	source: 'premium'; // Source of the boost, always “premium”
+	source: string; // Source of the boost, always “premium”
 	user: User; // User that boosted the chat
 }
 
 // The boost was obtained by the creation of Telegram Premium gift codes to boost a chat. Each such code boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
 export interface ChatBoostSourceGiftCode {
-	source: 'gift_code'; // Source of the boost, always “gift_code”
+	source: string; // Source of the boost, always “gift_code”
 	user: User; // User for which the gift code was created
 }
 
 // The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and prize_star_count / 500 times for one year for Telegram Star giveaways.
 export interface ChatBoostSourceGiveaway {
-	source: 'giveaway'; // Source of the boost, always “giveaway”
+	source: string; // Source of the boost, always “giveaway”
 	giveaway_message_id: number; // Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.
 	user?: User; // User that won the prize in the giveaway if any; for Telegram Premium giveaways only
 	prize_star_count?: number; // The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
@@ -1480,51 +1533,55 @@ export type InputMedia =
 
 // Represents a photo to be sent.
 export interface InputMediaPhoto {
-	type: 'photo'; // Type of the result, must be photo
+	type: string; // Type of the result, must be photo
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	caption?: string; // Caption of the photo to be sent, 0-1024 characters after entities parsing
-	parse_mode?: ParseMode; // Mode for parsing entities in the photo caption. See formatting options for more details.
+	parse_mode?: string; // Mode for parsing entities in the photo caption. See formatting options for more details.
 	caption_entities?: MessageEntity[]; // List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media?: boolean; // Pass True, if the caption must be shown above the message media
 	has_spoiler?: boolean; // Pass True if the photo needs to be covered with a spoiler animation
 }
 
 // Represents a video to be sent.
-export interface InputMediaVideo extends Partial<Dimensions> {
-	type: 'video'; // Type of the result, must be video
+export interface InputMediaVideo {
+	type: string; // Type of the result, must be video
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	thumbnail?: string; // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	cover?: string; // Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	start_timestamp?: number; // Start timestamp for the video in the message
 	caption?: string; // Caption of the video to be sent, 0-1024 characters after entities parsing
-	parse_mode?: ParseMode; // Mode for parsing entities in the video caption. See formatting options for more details.
+	parse_mode?: string; // Mode for parsing entities in the video caption. See formatting options for more details.
 	caption_entities?: MessageEntity[]; // List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media?: boolean; // Pass True, if the caption must be shown above the message media
+	width?: number; // Video width
+	height?: number; // Video height
 	duration?: number; // Video duration in seconds
 	supports_streaming?: boolean; // Pass True if the uploaded video is suitable for streaming
 	has_spoiler?: boolean; // Pass True if the video needs to be covered with a spoiler animation
 }
 
 // Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
-export interface InputMediaAnimation extends Partial<Dimensions> {
-	type: 'animation'; // Type of the result, must be animation
+export interface InputMediaAnimation {
+	type: string; // Type of the result, must be animation
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	thumbnail?: string; // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	caption?: string; // Caption of the animation to be sent, 0-1024 characters after entities parsing
-	parse_mode?: ParseMode; // Mode for parsing entities in the animation caption. See formatting options for more details.
+	parse_mode?: string; // Mode for parsing entities in the animation caption. See formatting options for more details.
 	caption_entities?: MessageEntity[]; // List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media?: boolean; // Pass True, if the caption must be shown above the message media
+	width?: number; // Animation width
+	height?: number; // Animation height
 	duration?: number; // Animation duration in seconds
 	has_spoiler?: boolean; // Pass True if the animation needs to be covered with a spoiler animation
 }
 
 // Represents an audio file to be treated as music to be sent.
 export interface InputMediaAudio {
-	type: 'audio'; // Type of the result, must be audio
+	type: string; // Type of the result, must be audio
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	thumbnail?: string; // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	caption?: string; // Caption of the audio to be sent, 0-1024 characters after entities parsing
-	parse_mode?: ParseMode; // Mode for parsing entities in the audio caption. See formatting options for more details.
+	parse_mode?: string; // Mode for parsing entities in the audio caption. See formatting options for more details.
 	caption_entities?: MessageEntity[]; // List of special entities that appear in the caption, which can be specified instead of parse_mode
 	duration?: number; // Duration of the audio in seconds
 	performer?: string; // Performer of the audio
@@ -1533,11 +1590,11 @@ export interface InputMediaAudio {
 
 // Represents a general file to be sent.
 export interface InputMediaDocument {
-	type: 'document'; // Type of the result, must be document
+	type: string; // Type of the result, must be document
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	thumbnail?: string; // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	caption?: string; // Caption of the document to be sent, 0-1024 characters after entities parsing
-	parse_mode?: ParseMode; // Mode for parsing entities in the document caption. See formatting options for more details.
+	parse_mode?: string; // Mode for parsing entities in the document caption. See formatting options for more details.
 	caption_entities?: MessageEntity[]; // List of special entities that appear in the caption, which can be specified instead of parse_mode
 	disable_content_type_detection?: boolean; // Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always True, if the document is sent as part of an album.
 }
@@ -1550,17 +1607,19 @@ export type InputPaidMedia = InputPaidMediaPhoto | InputPaidMediaVideo;
 
 // The paid media to send is a photo.
 export interface InputPaidMediaPhoto {
-	type: 'photo'; // Type of the media, must be photo
+	type: string; // Type of the media, must be photo
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 }
 
 // The paid media to send is a video.
-export interface InputPaidMediaVideo extends Partial<Dimensions> {
-	type: 'video'; // Type of the media, must be video
+export interface InputPaidMediaVideo {
+	type: string; // Type of the media, must be video
 	media: string; // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	thumbnail?: string; // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	cover?: string; // Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
 	start_timestamp?: number; // Start timestamp for the video in the message
+	width?: number; // Video width
+	height?: number; // Video height
 	duration?: number; // Video duration in seconds
 	supports_streaming?: boolean; // Pass True if the uploaded video is suitable for streaming
 }
@@ -1570,13 +1629,13 @@ export type InputProfilePhoto = InputProfilePhotoStatic | InputProfilePhotoAnima
 
 // A static profile photo in the .JPG format.
 export interface InputProfilePhotoStatic {
-	type: 'static'; // Type of the profile photo, must be static
+	type: string; // Type of the profile photo, must be static
 	photo: string; // The static profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 }
 
 // An animated profile photo in the MPEG4 format.
 export interface InputProfilePhotoAnimated {
-	type: 'animated'; // Type of the profile photo, must be animated
+	type: string; // Type of the profile photo, must be animated
 	animation: string; // The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	main_frame_timestamp?: number; // Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0.
 }
@@ -1586,13 +1645,13 @@ export type InputStoryContent = InputStoryContentPhoto | InputStoryContentVideo;
 
 // Describes a photo to post as a story.
 export interface InputStoryContentPhoto {
-	type: 'photo'; // Type of the content, must be photo
+	type: string; // Type of the content, must be photo
 	photo: string; // The photo to post as a story. The photo must be of the size 1080x1920 and must not exceed 10 MB. The photo can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 }
 
 // Describes a video to post as a story.
 export interface InputStoryContentVideo {
-	type: 'video'; // Type of the content, must be video
+	type: string; // Type of the content, must be video
 	video: string; // The video to post as a story. The video must be of the size 720x1280, streamable, encoded with H.265 codec, with key frames added each second in the MPEG4 format, and must not exceed 30 MB. The video can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the video was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	duration?: number; // Precise duration of the video in seconds; 0-60
 	cover_frame_timestamp?: number; // Timestamp in seconds of the frame that will be used as the static cover for the story. Defaults to 0.0.

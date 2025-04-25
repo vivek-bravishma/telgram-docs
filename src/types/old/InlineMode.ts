@@ -10,7 +10,6 @@ import {
 	User,
 	WebAppInfo,
 } from './AvailableTypes';
-import { IInlineQueryResult } from './Common';
 import { LabeledPrice } from './Payments';
 
 // This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
@@ -67,10 +66,12 @@ export type InlineQueryResult =
 // Note: All URLs passed in inline query results will be available to end users and therefore must be assumed to be public.
 
 // Represents a link to an article or web page.
-export interface InlineQueryResultArticle extends IInlineQueryResult {
-	type: 'article'; //	Type of the result, must be article
+export interface InlineQueryResultArticle {
+	type: string; //	Type of the result, must be article
+	id: string; //	Unique identifier for this result, 1 - 64 Bytes
 	title: string; //	Title of the result
 	input_message_content: InputMessageContent; //	Content of the message to be sent
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	url: string; //URL of the result
 	description: string; //Short description of the result
 	thumbnail_url: string; //Url of the thumbnail for the result
@@ -79,8 +80,9 @@ export interface InlineQueryResultArticle extends IInlineQueryResult {
 }
 
 // Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
-export interface InlineQueryResultPhoto extends IInlineQueryResult {
-	type: 'photo'; //Type of the result, must be photo
+export interface InlineQueryResultPhoto {
+	type: string; //Type of the result, must be photo
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	photo_url: string; //	A valid URL of the photo.Photo must be in JPEG format.Photo size must not exceed 5MB
 	thumbnail_url: string; //	URL of the thumbnail for the photo
 	photo_width: number; //Width of the photo
@@ -91,12 +93,14 @@ export interface InlineQueryResultPhoto extends IInlineQueryResult {
 	parse_mode: string; //Mode for parsing entities in the photo caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media: boolean; //Pass True, if the caption must be shown above the message media
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the photo
 }
 
 // Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
-export interface InlineQueryResultGif extends IInlineQueryResult {
-	type: 'gif'; //	Type of the result, must be gif
+export interface InlineQueryResultGif {
+	type: string; //	Type of the result, must be gif
+	id: string; //	Unique identifier for this result, 1 - 64 bytes
 	gif_url: string; //	A valid URL for the GIF file
 	gif_width: number; //Width of the GIF
 	gif_height: number; //Height of the GIF
@@ -108,12 +112,14 @@ export interface InlineQueryResultGif extends IInlineQueryResult {
 	parse_mode: string; //Mode for parsing entities in the caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media: boolean; //Pass True, if the caption must be shown above the message media
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the GIF animation
 }
 
 // Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
-export interface InlineQueryResultMpeg4Gif extends IInlineQueryResult {
-	type: 'mpeg4_gif'; //	Type of the result, must be mpeg4_gif
+export interface InlineQueryResultMpeg4Gif {
+	type: string; //	Type of the result, must be mpeg4_gif
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	mpeg4_url: string; //	A valid URL for the MPEG4 file
 	mpeg4_width: number; //Video width
 	mpeg4_height: number; //Video height
@@ -125,13 +131,15 @@ export interface InlineQueryResultMpeg4Gif extends IInlineQueryResult {
 	parse_mode: string; //Mode for parsing entities in the caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media: boolean; //Pass True, if the caption must be shown above the message media
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the video animation
 }
 
 // Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
 // If an InlineQueryResultVideo message contains an embedded video (e.g., YouTube), you must replace its content using input_message_content.
-export interface InlineQueryResultVideo extends IInlineQueryResult {
-	type: 'video'; //	Type of the result, must be video
+export interface InlineQueryResultVideo {
+	type: string; //	Type of the result, must be video
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	video_url: string; //	A valid URL for the embedded video player or video file
 	mime_type: string; //MIME type of the content of the video URL, “text / html” or “video / mp4”
 	thumbnail_url: string; //URL of the thumbnail(JPEG only) for the video
@@ -144,12 +152,14 @@ export interface InlineQueryResultVideo extends IInlineQueryResult {
 	video_height: number; //Video height
 	video_duration: number; //Video duration in seconds
 	description: string; //Short description of the result
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the video.This field is required if InlineQueryResultVideo is used to send an HTML - page as a result(e.g., a YouTube video).
 }
 
 // Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
-export interface InlineQueryResultAudio extends IInlineQueryResult {
-	type: 'audio'; //	Type of the result, must be audio
+export interface InlineQueryResultAudio {
+	type: string; //	Type of the result, must be audio
+	id: string; //	Unique identifier for this result, 1 - 64 bytes
 	audio_url: string; //	A valid URL for the audio file
 	title: string; //Title
 	caption: string; //Caption, 0 - 1024 characters after entities parsing
@@ -157,24 +167,28 @@ export interface InlineQueryResultAudio extends IInlineQueryResult {
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
 	performer: string; //Performer
 	audio_duration: number; //Audio duration in seconds
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the audio
 }
 
 // Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
-export interface InlineQueryResultVoice extends IInlineQueryResult {
-	type: 'voice'; //	Type of the result, must be voice
+export interface InlineQueryResultVoice {
+	type: string; //	Type of the result, must be voice
+	id: string; //	Unique identifier for this result, 1 - 64 bytes
 	voice_url: string; //	A valid URL for the voice recording
 	title: string; //Recording title
 	caption: string; //Caption, 0 - 1024 characters after entities parsing
 	parse_mode: string; //Mode for parsing entities in the voice message caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
 	voice_duration: number; //Recording duration in seconds
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the voice recording
 }
 
 // Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.
-export interface InlineQueryResultDocument extends IInlineQueryResult {
-	type: 'document'; //Type of the result, must be document
+export interface InlineQueryResultDocument {
+	type: string; //Type of the result, must be document
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	title: string; //	Title for the result
 	caption: string; //Caption of the document to be sent, 0 - 1024 characters after entities parsing
 	parse_mode: string; //Mode for parsing entities in the document caption.See formatting options for more details.
@@ -182,6 +196,7 @@ export interface InlineQueryResultDocument extends IInlineQueryResult {
 	document_url: string; //	A valid URL for the file
 	mime_type: string; //	MIME type of the content of the file, either “application / pdf” or “application / zip”
 	description: string; //Short description of the result
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the file
 	thumbnail_url: string; //URL of the thumbnail(JPEG only) for the file
 	thumbnail_width: number; //Thumbnail width
@@ -189,8 +204,9 @@ export interface InlineQueryResultDocument extends IInlineQueryResult {
 }
 
 // Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
-export interface InlineQueryResultLocation extends IInlineQueryResult {
-	type: 'location'; //	Type of the result, must be location
+export interface InlineQueryResultLocation {
+	type: string; //	Type of the result, must be location
+	id: string; //Unique identifier for this result, 1 - 64 Bytes
 	latitude: number; //	Location latitude in degrees
 	longitude: number; //Location longitude in degrees
 	title: string; //Location title
@@ -198,6 +214,7 @@ export interface InlineQueryResultLocation extends IInlineQueryResult {
 	live_period: number; //Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
 	heading: number; //For live locations, a direction in which the user is moving, in degrees.Must be between 1 and 360 if specified.
 	proximity_alert_radius: number; //For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters.Must be between 1 and 100000 if specified.
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the location
 	thumbnail_url: string; //Url of the thumbnail for the result
 	thumbnail_width: number; //Thumbnail width
@@ -205,8 +222,9 @@ export interface InlineQueryResultLocation extends IInlineQueryResult {
 }
 
 // Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
-export interface InlineQueryResultVenue extends IInlineQueryResult {
-	type: 'venue'; //Type of the result, must be venue
+export interface InlineQueryResultVenue {
+	type: string; //Type of the result, must be venue
+	id: string; //Unique identifier for this result, 1 - 64 Bytes
 	latitude: number; //	Latitude of the venue location in degrees
 	longitude: number; //	Longitude of the venue location in degrees
 	title: string; //Title of the venue
@@ -215,6 +233,7 @@ export interface InlineQueryResultVenue extends IInlineQueryResult {
 	foursquare_type: string; //Foursquare type of the venue, if known. (For example, “arts_entertainment /default”, “arts_entertainment / aquarium” or “food / icecream”.)
 	google_place_id: string; //Google Places identifier of the venue
 	google_place_type: string; //Google Places type of the venue. (See supported types.)
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the venue
 	thumbnail_url: string; //Url of the thumbnail for the result
 	thumbnail_width: number; //Thumbnail width
@@ -222,12 +241,14 @@ export interface InlineQueryResultVenue extends IInlineQueryResult {
 }
 
 // Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.
-export interface InlineQueryResultContact extends IInlineQueryResult {
-	type: 'contact'; //Type of the result, must be contact
+export interface InlineQueryResultContact {
+	type: string; //Type of the result, must be contact
+	id: string; //Unique identifier for this result, 1 - 64 Bytes
 	phone_number: string; //	Contact's phone number
 	first_name: string; //Contact's first name
 	last_name: string; //Contact's last name
 	vcard: string; //Additional data about the contact in the form of a vCard, 0 - 2048 bytes
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the contact
 	thumbnail_url: string; //Url of the thumbnail for the result
 	thumbnail_width: number; //Thumbnail width
@@ -235,14 +256,17 @@ export interface InlineQueryResultContact extends IInlineQueryResult {
 }
 
 // Represents a Game.
-export interface InlineQueryResultGame extends IInlineQueryResult {
-	type: 'game'; //	Type of the result, must be game
+export interface InlineQueryResultGame {
+	type: string; //	Type of the result, must be game
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	game_short_name: string; //	Short name of the game
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 }
 
 // Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
-export interface InlineQueryResultCachedPhoto extends IInlineQueryResult {
-	type: 'photo'; //Type of the result, must be photo
+export interface InlineQueryResultCachedPhoto {
+	type: string; //Type of the result, must be photo
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	photo_file_id: string; //	A valid file identifier of the photo
 	title: string; //Title for the result
 	description: string; //Short description of the result
@@ -250,55 +274,65 @@ export interface InlineQueryResultCachedPhoto extends IInlineQueryResult {
 	parse_mode: string; //Mode for parsing entities in the photo caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media: boolean; //Pass True, if the caption must be shown above the message media
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the photo
 }
 
 // Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
-export interface InlineQueryResultCachedGif extends IInlineQueryResult {
-	type: 'gif'; //Type of the result, must be gif
+export interface InlineQueryResultCachedGif {
+	type: string; //Type of the result, must be gif
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	gif_file_id: string; //	A valid file identifier for the GIF file
 	title: string; //Title for the result
 	caption: string; //Caption of the GIF file to be sent, 0 - 1024 characters after entities parsing
 	parse_mode: string; //Mode for parsing entities in the caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media: boolean; //Pass True, if the caption must be shown above the message media
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the GIF animation
 }
 
 // Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
-export interface InlineQueryResultCachedMpeg4Gif extends IInlineQueryResult {
-	type: 'mpeg4_gif'; //Type of the result, must be mpeg4_gif
+export interface InlineQueryResultCachedMpeg4Gif {
+	type: string; //Type of the result, must be mpeg4_gif
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	mpeg4_file_id: string; //	A valid file identifier for the MPEG4 file
 	title: string; //Title for the result
 	caption: string; //Caption of the MPEG - 4 file to be sent, 0 - 1024 characters after entities parsing
 	parse_mode: string; //Mode for parsing entities in the caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media: boolean; //Pass True, if the caption must be shown above the message media
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the video animation
 }
 
 // Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.
-export interface InlineQueryResultCachedSticker extends IInlineQueryResult {
-	type: 'sticker'; //Type of the result, must be sticker
+export interface InlineQueryResultCachedSticker {
+	type: string; //Type of the result, must be sticker
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	sticker_file_id: string; //	A valid file identifier of the sticker
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the sticker
 }
 
 // Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
-export interface InlineQueryResultCachedDocument extends IInlineQueryResult {
-	type: 'document'; //Type of the result, must be document
+export interface InlineQueryResultCachedDocument {
+	type: string; //Type of the result, must be document
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	title: string; //	Title for the result
 	document_file_id: string; //	A valid file identifier for the file
 	description: string; //Short description of the result
 	caption: string; //Caption of the document to be sent, 0 - 1024 characters after entities parsing
 	parse_mode: string; //Mode for parsing entities in the document caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the file
 }
 
 // Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
-export interface InlineQueryResultCachedVideo extends IInlineQueryResult {
-	type: 'video'; //Type of the result, must be video
+export interface InlineQueryResultCachedVideo {
+	type: string; //Type of the result, must be video
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	video_file_id: string; //	A valid file identifier for the video file
 	title: string; //Title for the result
 	description: string; //Short description of the result
@@ -306,27 +340,32 @@ export interface InlineQueryResultCachedVideo extends IInlineQueryResult {
 	parse_mode: string; //Mode for parsing entities in the video caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
 	show_caption_above_media: boolean; //Pass True, if the caption must be shown above the message media
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the video
 }
 
 // Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
-export interface InlineQueryResultCachedVoice extends IInlineQueryResult {
-	type: 'voice'; //Type of the result, must be voice
+export interface InlineQueryResultCachedVoice {
+	type: string; //Type of the result, must be voice
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	voice_file_id: string; //	A valid file identifier for the voice message
 	title: string; //Voice message title
 	caption: string; //Caption, 0 - 1024 characters after entities parsing
 	parse_mode: string; //Mode for parsing entities in the voice message caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the voice message
 }
 
 // Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
-export interface InlineQueryResultCachedAudio extends IInlineQueryResult {
-	type: 'audio'; //Type of the result, must be audio
+export interface InlineQueryResultCachedAudio {
+	type: string; //Type of the result, must be audio
+	id: string; //Unique identifier for this result, 1 - 64 bytes
 	audio_file_id: string; //	A valid file identifier for the audio file
 	caption: string; //Caption, 0 - 1024 characters after entities parsing
 	parse_mode: string; //Mode for parsing entities in the audio caption.See formatting options for more details.
 	caption_entities: MessageEntity[]; //List of special entities that appear in the caption, which can be specified instead of parse_mode
+	reply_markup: InlineKeyboardMarkup; //Inline keyboard attached to the message
 	input_message_content: InputMessageContent; //Content of the message to be sent instead of the audio
 }
 

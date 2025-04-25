@@ -1,7 +1,12 @@
 // ============================== Games ==============================
 
-import { MessageEntity, PhotoSize, User } from './AvailableTypes';
-import { SendMessageBase } from './Common';
+import {
+	InlineKeyboardMarkup,
+	MessageEntity,
+	PhotoSize,
+	ReplyParameters,
+	User,
+} from './AvailableTypes';
 
 // Your bot can offer users HTML5 games to play solo or to compete against each other in groups and one-on-one chats. Create games via @BotFather using the /newgame command. Please note that this kind of power requires responsibility: you will need to accept the terms for each game that your bots will be offering.
 //  - Games are a new type of content on Telegram, represented by the Game and InlineQueryResultGame objects.
@@ -15,9 +20,17 @@ import { SendMessageBase } from './Common';
 //  - For examples of what can be done using this new stuff, check the @gamebot and @gamee bots.
 
 // Use this method to send a game. On success, the sent Message is returned.
-export interface sendGame extends SendMessageBase {
+export interface sendGame {
+	business_connection_id?: string; // Unique identifier of the business connection on behalf of which the message will be sent
 	chat_id: number; // Unique identifier for the target chat
+	message_thread_id?: number; // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	game_short_name: string; // Short name of the game, serves as the unique identifier for the game. Set up your games via @BotFather.
+	disable_notification?: boolean; // Sends the message silently. Users will receive a notification with no sound.
+	protect_content?: boolean; // Protects the contents of the sent message from forwarding and saving
+	allow_paid_broadcast?: boolean; // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+	message_effect_id?: string; // Unique identifier of the message effect to be added to the message; for private chats only
+	reply_parameters?: ReplyParameters; // Description of the message to reply to
+	reply_markup?: InlineKeyboardMarkup; // A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game.
 }
 
 // This object represents a game. Use BotFather to create and edit games, their short names will act as unique identifiers.
