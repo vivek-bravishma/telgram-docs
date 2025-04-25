@@ -243,6 +243,7 @@ export interface ExternalReplyInfo {
 
 // Describes reply parameters for the message that is being sent.
 export interface ReplyParameters extends MessageId {
+export interface ReplyParameters extends MessageId {
 	chat_id?: number | string; // If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account.
 	allow_sending_without_reply?: boolean; // Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account.
 	quote?: string; // Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message.
@@ -271,8 +272,9 @@ export interface MessageOriginHiddenUser extends BaseMessageOrigin {
 }
 
 // The message was originally sent on behalf of a chat to a group chat.
-export interface MessageOriginChat extends BaseMessageOrigin {
-	type: 'chat'; // Type of the message origin, always “chat”
+export interface MessageOriginChat {
+	type: string; // Type of the message origin, always “chat”
+	date: number; // Date the message was sent originally in Unix time
 	sender_chat: Chat; // Chat that sent the message originally
 	author_signature?: string; // For messages originally sent by an anonymous chat administrator, original message author signature
 }
@@ -285,9 +287,13 @@ export interface MessageOriginChannel extends MessageId, BaseMessageOrigin {
 }
 
 // This object represents one size of a photo or a file / sticker thumbnail.
-export interface PhotoSize
-	extends Dimensions,
-		Omit<TgFile, 'file_path' | 'file_name' | 'mime_type'> {}
+export interface PhotoSize {
+	file_id: string; // Identifier for this file, which can be used to download or reuse the file
+	file_unique_id: string; // Unique identifier for this file, which is supposed to be the same over time and for different bots.Can't be used to download or reuse the file.
+	width: number; // Photo width
+	height: number; // Photo height
+	file_size?: number; // File size in bytes
+}
 
 // This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
 export interface Animation extends Dimensions, Omit<TgFile, 'file_path'> {
